@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#121212">
-    
     <link rel="manifest" href="manifest.json">
-    
-    <title>QRally Dictate</title>
+    <title>QRally Dictate Pro</title>
     <style>
-        :root { --rally-yellow: #ffd700; --rally-red: #ff3b30; --rally-bg: #121212; --card-bg: #1e1e1e; }
+        :root { 
+            --rally-yellow: #ffd700; --rally-red: #ff3b30; --rally-bg: #121212; 
+            --card-bg: #1e1e1e; --accent: var(--rally-yellow);
+        }
+        body.night-mode { --accent: var(--rally-red); }
+        body.night-mode .note-item { border-left-color: var(--rally-red); }
         
         body { 
-            background: var(--rally-bg); color: var(--rally-yellow); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px; min-height: 100vh; margin: 0;
-            user-select: none; -webkit-user-select: none;
-            overflow-x: hidden;
+            background: var(--rally-bg); color: var(--accent); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; flex-direction: column; align-items: center; padding: 20px; min-height: 100vh; margin: 0;
+            user-select: none; -webkit-user-select: none; overflow-x: hidden;
         }
 
         .voice-card { 
             background: var(--card-bg); border: 2px solid #333; border-radius: 24px; 
             padding: 25px; width: 100%; max-width: 400px; text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            box-sizing: border-box;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); box-sizing: border-box;
         }
 
+        .ui-toggles { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; justify-content: center; }
+        .toggle-btn { background: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; }
+
         #stage-name { 
-            width: 100%; background: #000; color: var(--rally-yellow); border: 1px solid #444; 
+            width: 100%; background: #000; color: var(--accent); border: 1px solid #444; 
             padding: 14px; border-radius: 12px; font-weight: bold; text-align: center;
             margin-bottom: 15px; box-sizing: border-box; font-size: 1.1rem; text-transform: uppercase;
         }
@@ -39,22 +40,19 @@
         #transcript-display { 
             background: #000; color: #fff; min-height: 110px; padding: 15px; 
             margin: 15px 0; border-radius: 12px; border: 1px solid #444; 
-            font-style: italic; font-size: 1.1rem; text-align: left; line-height: 1.4;
-            display: flex; align-items: center; justify-content: center;
-            word-break: break-word;
+            font-style: italic; font-size: 1.2rem; text-align: center; line-height: 1.4;
+            display: flex; align-items: center; justify-content: center; word-break: break-word;
         }
 
         .ptt-btn { 
             width: 160px; height: 160px; border-radius: 50%; border: 8px solid #333;
             background: #2a2a2a; color: white; font-weight: 900; font-size: 1.3rem;
             cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.4); transition: all 0.2s;
         }
 
         .ptt-btn.active { 
             background: var(--rally-red); border-color: #ff6b6b;
-            animation: pulse-ring 1.2s infinite linear;
-            transform: scale(0.95);
+            animation: pulse-ring 1.2s infinite linear; transform: scale(0.95);
         }
 
         @keyframes pulse-ring {
@@ -63,50 +61,49 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
         }
 
-        .status-text { font-size: 0.85rem; color: #888; margin-top: 20px; font-weight: bold; letter-spacing: 1.5px; }
-
-        .top-controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
-        .button-row { display: flex; gap: 8px; justify-content: center; width: 100%; }
+        /* High Visibility Overrides */
+        body.high-viz .note-text { font-size: 2.3rem !important; font-weight: 900; line-height: 1.1; color: #fff; }
+        body.high-viz .note-item { padding: 25px; border-left-width: 12px; }
 
         #history-list { width: 100%; max-width: 400px; margin-top: 20px; padding-bottom: 40px; }
         .note-item { 
             background: #222; margin-bottom: 12px; padding: 16px; border-radius: 12px; 
-            border-left: 6px solid var(--rally-yellow); color: #eee;
+            border-left: 6px solid var(--accent); color: #eee;
             display: flex; flex-direction: column; gap: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        .btn-group { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
-        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: opacity 0.1s; }
-        button:active { opacity: 0.7; }
+        .btn-group { display: flex; gap: 6px; justify-content: flex-end; }
+        .play-btn { background: #007bff; color: white; padding: 10px 15px; font-size: 0.75rem; border-radius: 6px; }
+        .share-btn { background: #25D366; color: white; padding: 10px 15px; font-size: 0.75rem; border-radius: 6px; }
+        .del-btn { background: #4b1a1a; color: #ff6b6b; padding: 10px 15px; font-size: 0.75rem; border-radius: 6px; }
         
-        .play-btn { background: #007bff; color: white; padding: 8px 12px; font-size: 0.7rem; }
-        .share-btn { background: #25D366; color: white; padding: 8px 12px; font-size: 0.7rem; }
-        .copy-btn { background: #3d3d3d; color: var(--rally-yellow); padding: 8px 12px; font-size: 0.7rem; }
-        .del-btn { background: #4b1a1a; color: #ff6b6b; padding: 8px 12px; font-size: 0.7rem; }
-        
-        .read-all-btn { background: #007bff; color: white; padding: 12px; border-radius: 25px; font-size: 0.8rem; flex: 1; }
-        .share-all-btn { background: #25D366; color: white; padding: 12px; border-radius: 25px; font-size: 0.8rem; flex: 1; }
-        .save-btn { background: #555; color: white; padding: 12px; border-radius: 25px; font-size: 0.8rem; width: 60px; }
+        .top-controls { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+        .button-row { display: flex; gap: 8px; }
+        .read-all-btn { background: #007bff; color: white; padding: 14px; border-radius: 25px; flex: 1; font-weight: bold; }
+        .share-all-btn { background: #25D366; color: white; padding: 14px; border-radius: 25px; flex: 1; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="voice-card">
-        <h2 style="letter-spacing: 3px; margin: 0 0 15px 0; color: white;">QRALLY <span style="color:var(--rally-yellow)">DICTATE</span></h2>
-        <input type="text" id="stage-name" placeholder="STAGE NAME (e.g. SS4)" />
-        <div id="transcript-display">READY TO RECORD</div>
-        <button id="mic-btn" class="ptt-btn">HOLD TO DICTATE</button>
-        <div class="status-text" id="status">STATUS: STANDBY</div>
+        <h2 style="letter-spacing: 3px; margin: 0 0 15px 0; color: white;">QRALLY <span style="color:var(--accent)">DICTATE</span></h2>
+        
+        <div class="ui-toggles">
+            <button class="toggle-btn" onclick="document.body.classList.toggle('high-viz')">SIZE ±</button>
+            <button class="toggle-btn" onclick="document.body.classList.toggle('night-mode')">NIGHT</button>
+        </div>
+
+        <input type="text" id="stage-name" placeholder="STAGE NAME" />
+        <div id="transcript-display">READY</div>
+        <button id="mic-btn" class="ptt-btn">HOLD</button>
     </div>
 
     <div class="top-controls" id="control-bar" style="display:none;">
         <div class="button-row">
             <button onclick="readAllNotes()" class="read-all-btn">LISTEN ALL</button>
             <button onclick="shareAllWhatsApp()" class="share-all-btn">SEND (WA)</button>
-            <button onclick="downloadNotes()" class="save-btn">TXT</button>
         </div>
-        <button onclick="clearAll()" style="color:#666; background:none; text-decoration:underline; font-size:0.75rem; margin-top:5px; border:none;">ERASE ALL DATA</button>
+        <button onclick="clearAll()" style="color:#666; background:none; text-decoration:underline; font-size:0.75rem; border:none; margin-top:10px;">ERASE ALL DATA</button>
     </div>
 
     <div id="history-list"></div>
@@ -114,7 +111,6 @@
     <script>
         const micBtn = document.getElementById('mic-btn');
         const display = document.getElementById('transcript-display');
-        const status = document.getElementById('status');
         const historyList = document.getElementById('history-list');
         const stageInput = document.getElementById('stage-name');
         const controlBar = document.getElementById('control-bar');
@@ -131,7 +127,6 @@
         const speak = (text) => {
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.0;
             window.speechSynthesis.speak(utterance);
         };
 
@@ -140,12 +135,11 @@
             if (isPressed) return;
             isPressed = true;
             micBtn.classList.add('active');
-            status.innerText = "STATUS: LISTENING...";
             display.innerText = "";
             try { 
                 recognition.start(); 
-                if (navigator.vibrate) navigator.vibrate(40); 
-            } catch(err) { console.error("Mic error:", err); }
+                if (navigator.vibrate) navigator.vibrate(60); 
+            } catch(err) {}
         };
 
         const stopAction = (e) => {
@@ -153,7 +147,6 @@
             if (!isPressed) return;
             isPressed = false;
             micBtn.classList.remove('active');
-            status.innerText = "STATUS: STANDBY";
             recognition.stop();
         };
 
@@ -163,29 +156,45 @@
         micBtn.addEventListener('touchend', stopAction, {passive: false});
 
         recognition.onresult = (event) => {
-            let interimStr = '';
-            let finalStr = '';
+            let final = '';
+            let interim = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) finalStr += event.results[i][0].transcript;
-                else interimStr += event.results[i][0].transcript;
+                if (event.results[i].isFinal) final += event.results[i][0].transcript;
+                else interim += event.results[i][0].transcript;
             }
-            display.innerText = finalStr + interimStr;
+            display.innerText = final + interim;
         };
 
         recognition.onend = () => {
-            const result = display.innerText.trim();
-            if (result && result !== "READY TO RECORD") {
+            let result = display.innerText.trim();
+            if (result && result !== "READY") {
+                // RALLY TRANSLATOR (NOISE RESISTANT)
+                result = result
+                    .replace(/ titans/gi, ' >')
+                    .replace(/ tightens/gi, ' >')
+                    .replace(/(opens|open|hopes)/gi, ' <')
+                    .replace(/^Write/i, 'Right')
+                    .replace(/\bwrite\b/gi, 'right')
+                    .replace(/\bL\b/gi, 'Left')
+                    .replace(/\b(pressed|christ|rest)\b/gi, 'crest')
+                    .replace(/\b(king|pink|think)\b/gi, 'kink')
+                    .replace(/ into /gi, ' → ')
+                    .replace(/ plus/gi, '+')
+                    .replace(/ minus/gi, '-')
+                    // Number cleanup for speed reading
+                    .replace(/\bone\b/gi, '1').replace(/\btwo\b/gi, '2').replace(/\bthree\b/gi, '3')
+                    .replace(/\bfour\b/gi, '4').replace(/\bfive\b/gi, '5').replace(/\bsix\b/gi, '6');
+
                 savedNotes.push(result);
                 localStorage.setItem('qrally_dictate_notes', JSON.stringify(savedNotes));
                 render();
             }
-            if (!isPressed) display.innerText = "READY TO RECORD";
+            if (!isPressed) display.innerText = "READY";
         };
 
-        window.deleteNote = (indexInReversedList) => {
-            // Adjust index because list is displayed reversed
-            const actualIndex = (savedNotes.length - 1) - indexInReversedList;
-            if (confirm("Delete this note?")) {
+        window.deleteNote = (idx) => {
+            const actualIndex = (savedNotes.length - 1) - idx;
+            if (confirm("Delete?")) {
                 savedNotes.splice(actualIndex, 1);
                 localStorage.setItem('qrally_dictate_notes', JSON.stringify(savedNotes));
                 render();
@@ -193,69 +202,44 @@
         };
 
         window.clearAll = () => {
-            if (confirm("Permanently erase all notes?")) {
+            if (confirm("Erase all data?")) {
                 savedNotes = [];
                 localStorage.removeItem('qrally_dictate_notes');
                 render();
             }
         };
 
-        window.shareWhatsApp = (t) => {
-            window.open(`https://wa.me/?text=${encodeURIComponent(t)}`, '_blank');
-        };
+        window.shareWhatsApp = (t) => window.open(`https://wa.me/?text=${encodeURIComponent(t)}`, '_blank');
 
         window.shareAllWhatsApp = () => {
-            if (!savedNotes.length) return;
-            const stage = stageInput.value.trim() || "QRALLY STAGE";
-            let msg = `*${stage.toUpperCase()} DICTATION*\n\n`;
+            const stage = stageInput.value || "STAGE";
+            let msg = `*${stage.toUpperCase()} NOTES*\n\n`;
             savedNotes.forEach((n, i) => msg += `${i+1}. ${n}\n`);
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         };
 
-        window.readAllNotes = () => {
-            if (!savedNotes.length) return;
-            speak(`Summary for ${stageInput.value || 'current stage'}. ` + savedNotes.join(". "));
-        };
-
-        window.downloadNotes = () => {
-            if (!savedNotes.length) return;
-            const stage = stageInput.value.trim() || "QRally_Dictation";
-            let content = `QRALLY DICTATE - ${stage.toUpperCase()}\n\n`;
-            savedNotes.forEach((n, i) => content += `${i+1}. ${n}\n`);
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url; a.download = `${stage.replace(/\s+/g, '_')}.txt`;
-            a.click();
-        };
+        window.readAllNotes = () => speak(savedNotes.join(". "));
 
         function render() {
             controlBar.style.display = savedNotes.length > 0 ? 'flex' : 'none';
             const displayNotes = [...savedNotes].reverse();
             historyList.innerHTML = displayNotes.map((n, i) => {
-                const safeNote = n.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const clean = n.replace(/'/g, "\\'");
                 return `
                 <div class="note-item">
-                    <div style="font-weight: 500;">${n}</div>
+                    <div class="note-text" style="font-weight: 600;">${n}</div>
                     <div class="btn-group">
-                        <button class="play-btn" onclick="speak('${safeNote}')">PLAY</button>
-                        <button class="share-btn" onclick="shareWhatsApp('${safeNote}')">WA</button>
-                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${safeNote}')">COPY</button>
+                        <button class="play-btn" onclick="speak('${clean}')">PLAY</button>
+                        <button class="share-btn" onclick="shareWhatsApp('${clean}')">WA</button>
                         <button class="del-btn" onclick="deleteNote(${i})">DEL</button>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('App Ready Offline'))
-                    .catch(err => console.log('Offline Engine Failed', err));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
         }
-
         render();
     </script>
 </body>
