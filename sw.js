@@ -1,4 +1,4 @@
-const CACHE_NAME = 'qrally-dictate-v5'; // Version 5
+const CACHE_NAME = 'qrally-dictate-v5'; 
 const ASSETS = [
   './',
   './index.html',
@@ -7,31 +7,38 @@ const ASSETS = [
   './icon-512.png'
 ];
 
-// Install the service worker and cache all assets
+// Install: Cache everything
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
+    }).then(() => {
+      // Forces the waiting service worker to become the active service worker
+      return self.skipWaiting();
     })
   );
 });
 
-// Activate and clean up old caches (v1, v2, v3, etc.)
+// Activate: Clean up old versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
+            console.log('Clearing old cache:', cache);
             return caches.delete(cache);
           }
         })
       );
+    }).then(() => {
+      // Take control of all open tabs immediately
+      return self.clients.claim();
     })
   );
 });
 
-// Serve from cache first for maximum offline speed
+// Fetch: Offline support (Cache first, then Network)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
